@@ -68,7 +68,7 @@ PerdangaAllShare/
 
 1. Clone the repository:
    ```cmd
-   git clone https://github.com/YOUR_USERNAME/perdanga-allshare.git
+   git clone https://github.com/PerdangaSoftware/perdanga-allshare.git
    cd perdanga-allshare
    ```
 

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perdanga AllShare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #090a0f;
+            --surface: #11131a;
+            --surface-hover: #161922;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --accent: #ff6b00;
+            --accent-glow: rgba(255, 107, 0, 0.2);
+            --text-primary: #f0f2f5;
+            --text-secondary: #7e8695;
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 60px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        header {
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            background: rgba(255, 107, 0, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(255, 107, 0, 0.2);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .upload-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .dropzone {
+            border: 1.5px dashed var(--border);
+            border-radius: 12px;
+            padding: 32px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent);
+            background: var(--surface-hover);
+        }
+
+        .upload-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .drop-title {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .drop-hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .selected-file-pill {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--surface-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .selected-file-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .selected-file-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .clear-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+        }
+
+        .clear-btn:hover {
+            color: var(--danger);
+        }
+
+        /* Conflict warning banner */
+        .conflict-warning {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--warning-bg);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 8px;
+            color: var(--warning);
+            font-size: 0.85rem;
+        }
+
+        .progress-container {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            border-radius: 999px;
+            transition: width 0.15s ease-out;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-upload {
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-upload:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .file-count {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .file-list {
+            list-style: none;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .file-icon {
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .file-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+
+        .action-btn.delete:hover {
+            color: var(--danger);
+            background: var(--danger-bg);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .empty-state {
+            padding: 48px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Modal Security Dialog */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .modal-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .pin-input {
+            width: 100%;
+            padding: 12px;
+            background: #090a0f;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 0.2em;
+            outline: none;
+        }
+
+        .pin-input:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-error {
+            color: var(--danger);
+            font-size: 0.8rem;
+            text-align: center;
+            display: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .modal-btn.cancel {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.confirm {
+            background: var(--danger);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="badge">Direct Cloud Transfer</div>
+            <h1>Perdanga AllShare</h1>
+            <p class="subtitle">Fast and secure peer-to-peer file sharing</p>
+        </header>
+
+        <section class="upload-card">
+            <input type="file" id="fileInput" style="display: none;">
+
+            <div class="dropzone" id="dropzone">
+                <div class="upload-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <div>
+                    <div class="drop-title">Select file or drag & drop here</div>
+                    <div class="drop-hint">Supports any file size</div>
+                </div>
+            </div>
+
+            <div class="selected-file-pill" id="filePill">
+                <div class="selected-file-info">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                    </svg>
+                    <span class="selected-file-name" id="fileName">file.txt</span>
+                </div>
+                <button type="button" class="clear-btn" id="clearBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="conflict-warning" id="conflictWarning">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>A file with this name already exists. Please rename the file.</span>
+            </div>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="uploadStatus">Uploading...</span>
+                    <span id="percentText">0%</span>
+                </div>
+            </div>
+
+            <button type="button" class="btn-upload" id="uploadBtn" disabled>
+                Upload File
+            </button>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>Available Files</h2>
+                <span class="file-count">{{ files|length }} files</span>
+            </div>
+            
+            {% if files %}
+                <ul class="file-list">
+                    {% for file in files %}
+                        <li class="file-item">
+                            <div class="file-details">
+                                <div class="file-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="file-text">
+                                    <span class="file-name">{{ file.name }}</span>
+                                    <span class="file-size">{{ file.size }}</span>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <a href="{{ url_for('download_file', filename=file.name) }}" class="action-btn" title="Download">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </a>
+                                <button type="button" class="action-btn delete" onclick="openDeleteModal('{{ file.name }}')" title="Delete">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <span>No files uploaded yet. Be the first to share!</span>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+    <!-- Security Modal for File Deletion -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-box">
+            <div class="modal-title">Delete Protected File</div>
+            <div class="modal-desc" id="modalFilenameDesc">Enter admin security PIN to proceed:</div>
+            <input type="password" class="pin-input" id="pinInput" placeholder="••••" maxlength="8">
+            <div class="modal-error" id="modalError">Incorrect PIN code!</div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button type="button" class="modal-btn confirm" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const dropzone = document.getElementById('dropzone');
+        const filePill = document.getElementById('filePill');
+        const fileName = document.getElementById('fileName');
+        const clearBtn = document.getElementById('clearBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const conflictWarning = document.getElementById('conflictWarning');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const percentText = document.getElementById('percentText');
+        const uploadStatus = document.getElementById('uploadStatus');
+
+        let selectedFile = null;
+
+        const CHUNK_SIZE = 50 * 1024 * 1024;
+        const CONCURRENCY = 2;
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        async function setFile(file) {
+            if (!file) return;
+            selectedFile = file;
+            fileName.textContent = file.name;
+            filePill.style.display = 'flex';
+            conflictWarning.style.display = 'none';
+
+            // Check if file already exists on server
+            try {
+                const res = await fetch('/check-file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: file.name })
+                });
+                const data = await res.json();
+
+                if (data.exists) {
+                    conflictWarning.style.display = 'flex';
+                    uploadBtn.disabled = true;
+                    return;
+                }
+            } catch (err) {
+                console.warn('Collision check skipped due to network');
+            }
+
+            uploadBtn.disabled = false;
+        }
+
+        function clearSelectedFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            filePill.style.display = 'none';
+            conflictWarning.style.display = 'none';
+            uploadBtn.disabled = true;
+            progressContainer.style.display = 'none';
+            progressBar.style.width = '0%';
+        }
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+        clearBtn.addEventListener('click', clearSelectedFile);
+
+        ['dragenter', 'dragover'].forEach(name => {
+            dropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(name => {
+            dropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+            });
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files.length > 0) {
+                setFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function uploadChunkPromise(chunk, index, totalChunks, filename, onProgress) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', chunk);
+                formData.append('chunkIndex', index);
+                formData.append('totalChunks', totalChunks);
+                formData.append('filename', filename);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/upload-chunk', true);
+
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable && onProgress) {
+                        onProgress(e.loaded);
+                    }
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        if (onProgress) onProgress(chunk.size);
+                        resolve();
+                    } else if (xhr.status === 409) {
+                        reject(new Error('A file with this name already exists.'));
+                    } else {
+                        reject(new Error(`Chunk error: ${xhr.status}`));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Network error'));
+                xhr.send(formData);
+            });
+        }
+
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            // Re-verify existence before starting transfer
+            try {
+                const checkRes = await fetch('/check-file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: selectedFile.name })
+                });
+                const checkData = await checkRes.json();
+                if (checkData.exists) {
+                    conflictWarning.style.display = 'flex';
+                    uploadBtn.disabled = true;
+                    return;
+                }
+            } catch (err) {
+                // Continue if network check fails
+            }
+
+            const totalSize = selectedFile.size;
+            const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
+            uploadBtn.disabled = true;
+            progressContainer.style.display = 'flex';
+            uploadStatus.textContent = 'Uploading...';
+
+            const chunkLoaded = new Array(totalChunks).fill(0);
+
+            function updateProgressDisplay() {
+                const currentTotal = chunkLoaded.reduce((a, b) => a + b, 0);
+                const percent = Math.min(100, Math.round((currentTotal / totalSize) * 100));
+                progressBar.style.width = percent + '%';
+                percentText.textContent = `${formatBytes(currentTotal)} / ${formatBytes(totalSize)} (${percent}%)`;
+            }
+
+            const queue = [];
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, totalSize);
+                queue.push({
+                    index: i,
+                    chunk: selectedFile.slice(start, end)
+                });
+            }
+
+            async function worker() {
+                while (queue.length > 0) {
+                    const task = queue.shift();
+                    await uploadChunkPromise(
+                        task.chunk,
+                        task.index,
+                        totalChunks,
+                        selectedFile.name,
+                        (loaded) => {
+                            chunkLoaded[task.index] = loaded;
+                            updateProgressDisplay();
+                        }
+                    );
+                }
+            }
+
+            try {
+                const workers = [];
+                const activeThreads = Math.min(CONCURRENCY, queue.length);
+                for (let i = 0; i < activeThreads; i++) {
+                    workers.push(worker());
+                }
+
+                await Promise.all(workers);
+
+                uploadStatus.textContent = 'Assembling file...';
+                progressBar.style.width = '100%';
+                percentText.textContent = `${formatBytes(totalSize)} / ${formatBytes(totalSize)} (100%)`;
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+
+            } catch (err) {
+                console.error(err);
+                uploadStatus.textContent = err.message || 'Upload failed. Try again.';
+                uploadBtn.disabled = false;
+            }
+        });
+
+        // Delete Modal Functions
+        const deleteModal = document.getElementById('deleteModal');
+        const pinInput = document.getElementById('pinInput');
+        const modalError = document.getElementById('modalError');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        let fileToDelete = null;
+
+        function openDeleteModal(filename) {
+            fileToDelete = filename;
+            pinInput.value = '';
+            modalError.style.display = 'none';
+            document.getElementById('modalFilenameDesc').textContent = `Enter security PIN to delete "${filename}":`;
+            deleteModal.style.display = 'flex';
+            setTimeout(() => pinInput.focus(), 50);
+        }
+
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+            fileToDelete = null;
+        }
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!fileToDelete) return;
+            const pin = pinInput.value.trim();
+
+            try {
+                const response = await fetch('/delete-file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: fileToDelete, pin: pin })
+                });
+
+                if (response.ok) {
+                    closeDeleteModal();
+                    window.location.reload();
+                } else {
+                    modalError.style.display = 'block';
+                    pinInput.value = '';
+                    pinInput.focus();
+                }
+            } catch (err) {
+                modalError.textContent = 'Server communication error';
+                modalError.style.display = 'block';
+            }
+        });
+
+        pinInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') confirmDeleteBtn.click();
+        });
+    </script>
+</body>
+</html>

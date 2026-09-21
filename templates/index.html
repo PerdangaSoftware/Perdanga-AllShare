@@ -37,7 +37,8 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            padding: 60px 20px;
+            align-items: center;
+            padding: 40px 20px;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -51,6 +52,7 @@
 
         header {
             text-align: center;
+            position: relative;
         }
 
         .badge {
@@ -81,6 +83,65 @@
             font-size: 0.95rem;
         }
 
+        .btn-logout {
+            position: absolute;
+            right: 0;
+            top: 0;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Login Card */
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+            max-width: 360px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .pin-input {
+            width: 100%;
+            padding: 14px;
+            background: #090a0f;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 1.25rem;
+            text-align: center;
+            letter-spacing: 0.3em;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .pin-input:focus {
+            border-color: var(--accent);
+        }
+
+        .login-error {
+            color: var(--danger);
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        /* Dashboard Components */
         .upload-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -173,7 +234,6 @@
             color: var(--danger);
         }
 
-        /* Conflict warning banner */
         .conflict-warning {
             display: none;
             align-items: center;
@@ -353,475 +413,379 @@
             gap: 12px;
             color: var(--text-secondary);
         }
-
-        /* Modal Security Dialog */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            padding: 20px;
-        }
-
-        .modal-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            width: 100%;
-            max-width: 360px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .modal-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .modal-desc {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .pin-input {
-            width: 100%;
-            padding: 12px;
-            background: #090a0f;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 1.1rem;
-            text-align: center;
-            letter-spacing: 0.2em;
-            outline: none;
-        }
-
-        .pin-input:focus {
-            border-color: var(--accent);
-        }
-
-        .modal-error {
-            color: var(--danger);
-            font-size: 0.8rem;
-            text-align: center;
-            display: none;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .modal-btn {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .modal-btn.cancel {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-        }
-
-        .modal-btn.confirm {
-            background: var(--danger);
-            color: #ffffff;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="badge">Direct Cloud Transfer</div>
-            <h1>Perdanga AllShare</h1>
-            <p class="subtitle">Fast and secure peer-to-peer file sharing</p>
-        </header>
+        {% if not authenticated %}
+            <!-- Login Gate -->
+            <header>
+                <div class="badge">Security Gate</div>
+                <h1>Perdanga AllShare</h1>
+                <p class="subtitle">Enter access PIN to continue</p>
+            </header>
 
-        <section class="upload-card">
-            <input type="file" id="fileInput" style="display: none;">
-
-            <div class="dropzone" id="dropzone">
-                <div class="upload-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                </div>
-                <div>
-                    <div class="drop-title">Select file or drag & drop here</div>
-                    <div class="drop-hint">Supports any file size</div>
-                </div>
+            <div class="login-card">
+                <input type="password" class="pin-input" id="loginPin" placeholder="••••" maxlength="8" autofocus>
+                <div class="login-error" id="loginError">Incorrect security PIN!</div>
+                <button type="button" class="btn-upload" id="loginBtn">Unlock</button>
             </div>
 
-            <div class="selected-file-pill" id="filePill">
-                <div class="selected-file-info">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-                    </svg>
-                    <span class="selected-file-name" id="fileName">file.txt</span>
-                </div>
-                <button type="button" class="clear-btn" id="clearBtn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
+            <script>
+                const loginPin = document.getElementById('loginPin');
+                const loginBtn = document.getElementById('loginBtn');
+                const loginError = document.getElementById('loginError');
 
-            <div class="conflict-warning" id="conflictWarning">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <span>A file with this name already exists. Please rename the file.</span>
-            </div>
+                async function submitPin() {
+                    const pin = loginPin.value.trim();
+                    if (!pin) return;
 
-            <div class="progress-container" id="progressContainer">
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="progressBar"></div>
-                </div>
-                <div class="progress-text">
-                    <span id="uploadStatus">Uploading...</span>
-                    <span id="percentText">0%</span>
-                </div>
-            </div>
+                    try {
+                        const res = await fetch('/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ pin: pin })
+                        });
 
-            <button type="button" class="btn-upload" id="uploadBtn" disabled>
-                Upload File
-            </button>
-        </section>
-
-        <section class="card">
-            <div class="card-header">
-                <h2>Available Files</h2>
-                <span class="file-count">{{ files|length }} files</span>
-            </div>
-            
-            {% if files %}
-                <ul class="file-list">
-                    {% for file in files %}
-                        <li class="file-item">
-                            <div class="file-details">
-                                <div class="file-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                    </svg>
-                                </div>
-                                <div class="file-text">
-                                    <span class="file-name">{{ file.name }}</span>
-                                    <span class="file-size">{{ file.size }}</span>
-                                </div>
-                            </div>
-                            <div class="actions">
-                                <a href="{{ url_for('download_file', filename=file.name) }}" class="action-btn" title="Download">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                        <polyline points="7 10 12 15 17 10"></polyline>
-                                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                                    </svg>
-                                </a>
-                                <button type="button" class="action-btn delete" onclick="openDeleteModal('{{ file.name }}')" title="Delete">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <div class="empty-state">
-                    <span>No files uploaded yet. Be the first to share!</span>
-                </div>
-            {% endif %}
-        </section>
-    </div>
-
-    <!-- Security Modal for File Deletion -->
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-title">Delete Protected File</div>
-            <div class="modal-desc" id="modalFilenameDesc">Enter admin security PIN to proceed:</div>
-            <input type="password" class="pin-input" id="pinInput" placeholder="••••" maxlength="8">
-            <div class="modal-error" id="modalError">Incorrect PIN code!</div>
-            <div class="modal-actions">
-                <button type="button" class="modal-btn cancel" onclick="closeDeleteModal()">Cancel</button>
-                <button type="button" class="modal-btn confirm" id="confirmDeleteBtn">Delete</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const dropzone = document.getElementById('dropzone');
-        const filePill = document.getElementById('filePill');
-        const fileName = document.getElementById('fileName');
-        const clearBtn = document.getElementById('clearBtn');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const conflictWarning = document.getElementById('conflictWarning');
-        const progressContainer = document.getElementById('progressContainer');
-        const progressBar = document.getElementById('progressBar');
-        const percentText = document.getElementById('percentText');
-        const uploadStatus = document.getElementById('uploadStatus');
-
-        let selectedFile = null;
-
-        const CHUNK_SIZE = 50 * 1024 * 1024;
-        const CONCURRENCY = 2;
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-        }
-
-        async function setFile(file) {
-            if (!file) return;
-            selectedFile = file;
-            fileName.textContent = file.name;
-            filePill.style.display = 'flex';
-            conflictWarning.style.display = 'none';
-
-            // Check if file already exists on server
-            try {
-                const res = await fetch('/check-file', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename: file.name })
-                });
-                const data = await res.json();
-
-                if (data.exists) {
-                    conflictWarning.style.display = 'flex';
-                    uploadBtn.disabled = true;
-                    return;
-                }
-            } catch (err) {
-                console.warn('Collision check skipped due to network');
-            }
-
-            uploadBtn.disabled = false;
-        }
-
-        function clearSelectedFile() {
-            selectedFile = null;
-            fileInput.value = '';
-            filePill.style.display = 'none';
-            conflictWarning.style.display = 'none';
-            uploadBtn.disabled = true;
-            progressContainer.style.display = 'none';
-            progressBar.style.width = '0%';
-        }
-
-        dropzone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
-        clearBtn.addEventListener('click', clearSelectedFile);
-
-        ['dragenter', 'dragover'].forEach(name => {
-            dropzone.addEventListener(name, (e) => {
-                e.preventDefault();
-                dropzone.classList.add('dragover');
-            });
-        });
-
-        ['dragleave', 'drop'].forEach(name => {
-            dropzone.addEventListener(name, (e) => {
-                e.preventDefault();
-                dropzone.classList.remove('dragover');
-            });
-        });
-
-        dropzone.addEventListener('drop', (e) => {
-            if (e.dataTransfer.files.length > 0) {
-                setFile(e.dataTransfer.files[0]);
-            }
-        });
-
-        function uploadChunkPromise(chunk, index, totalChunks, filename, onProgress) {
-            return new Promise((resolve, reject) => {
-                const formData = new FormData();
-                formData.append('file', chunk);
-                formData.append('chunkIndex', index);
-                formData.append('totalChunks', totalChunks);
-                formData.append('filename', filename);
-
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', '/upload-chunk', true);
-
-                xhr.upload.onprogress = (e) => {
-                    if (e.lengthComputable && onProgress) {
-                        onProgress(e.loaded);
-                    }
-                };
-
-                xhr.onload = () => {
-                    if (xhr.status === 200) {
-                        if (onProgress) onProgress(chunk.size);
-                        resolve();
-                    } else if (xhr.status === 409) {
-                        reject(new Error('A file with this name already exists.'));
-                    } else {
-                        reject(new Error(`Chunk error: ${xhr.status}`));
-                    }
-                };
-
-                xhr.onerror = () => reject(new Error('Network error'));
-                xhr.send(formData);
-            });
-        }
-
-        uploadBtn.addEventListener('click', async () => {
-            if (!selectedFile) return;
-
-            // Re-verify existence before starting transfer
-            try {
-                const checkRes = await fetch('/check-file', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename: selectedFile.name })
-                });
-                const checkData = await checkRes.json();
-                if (checkData.exists) {
-                    conflictWarning.style.display = 'flex';
-                    uploadBtn.disabled = true;
-                    return;
-                }
-            } catch (err) {
-                // Continue if network check fails
-            }
-
-            const totalSize = selectedFile.size;
-            const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
-            uploadBtn.disabled = true;
-            progressContainer.style.display = 'flex';
-            uploadStatus.textContent = 'Uploading...';
-
-            const chunkLoaded = new Array(totalChunks).fill(0);
-
-            function updateProgressDisplay() {
-                const currentTotal = chunkLoaded.reduce((a, b) => a + b, 0);
-                const percent = Math.min(100, Math.round((currentTotal / totalSize) * 100));
-                progressBar.style.width = percent + '%';
-                percentText.textContent = `${formatBytes(currentTotal)} / ${formatBytes(totalSize)} (${percent}%)`;
-            }
-
-            const queue = [];
-            for (let i = 0; i < totalChunks; i++) {
-                const start = i * CHUNK_SIZE;
-                const end = Math.min(start + CHUNK_SIZE, totalSize);
-                queue.push({
-                    index: i,
-                    chunk: selectedFile.slice(start, end)
-                });
-            }
-
-            async function worker() {
-                while (queue.length > 0) {
-                    const task = queue.shift();
-                    await uploadChunkPromise(
-                        task.chunk,
-                        task.index,
-                        totalChunks,
-                        selectedFile.name,
-                        (loaded) => {
-                            chunkLoaded[task.index] = loaded;
-                            updateProgressDisplay();
+                        if (res.ok) {
+                            window.location.reload();
+                        } else {
+                            loginError.style.display = 'block';
+                            loginPin.value = '';
+                            loginPin.focus();
                         }
-                    );
-                }
-            }
-
-            try {
-                const workers = [];
-                const activeThreads = Math.min(CONCURRENCY, queue.length);
-                for (let i = 0; i < activeThreads; i++) {
-                    workers.push(worker());
+                    } catch (err) {
+                        loginError.textContent = 'Connection error';
+                        loginError.style.display = 'block';
+                    }
                 }
 
-                await Promise.all(workers);
+                loginBtn.addEventListener('click', submitPin);
+                loginPin.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') submitPin();
+                });
+            </script>
+        {% else %}
+            <!-- Authenticated Dashboard -->
+            <header>
+                <form action="/logout" method="post" style="display: inline;">
+                    <button type="submit" class="btn-logout" title="Lock access">Lock</button>
+                </form>
+                <div class="badge">Direct Cloud Transfer</div>
+                <h1>Perdanga AllShare</h1>
+                <p class="subtitle">Fast and secure peer-to-peer file sharing</p>
+            </header>
 
-                uploadStatus.textContent = 'Assembling file...';
-                progressBar.style.width = '100%';
-                percentText.textContent = `${formatBytes(totalSize)} / ${formatBytes(totalSize)} (100%)`;
+            <section class="upload-card">
+                <input type="file" id="fileInput" style="display: none;">
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 800);
+                <div class="dropzone" id="dropzone">
+                    <div class="upload-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="drop-title">Select file or drag & drop here</div>
+                        <div class="drop-hint">Supports any file size</div>
+                    </div>
+                </div>
 
-            } catch (err) {
-                console.error(err);
-                uploadStatus.textContent = err.message || 'Upload failed. Try again.';
-                uploadBtn.disabled = false;
-            }
-        });
+                <div class="selected-file-pill" id="filePill">
+                    <div class="selected-file-info">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                        </svg>
+                        <span class="selected-file-name" id="fileName">file.txt</span>
+                    </div>
+                    <button type="button" class="clear-btn" id="clearBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
 
-        // Delete Modal Functions
-        const deleteModal = document.getElementById('deleteModal');
-        const pinInput = document.getElementById('pinInput');
-        const modalError = document.getElementById('modalError');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        let fileToDelete = null;
+                <div class="conflict-warning" id="conflictWarning">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>A file with this name already exists. Please rename the file.</span>
+                </div>
 
-        function openDeleteModal(filename) {
-            fileToDelete = filename;
-            pinInput.value = '';
-            modalError.style.display = 'none';
-            document.getElementById('modalFilenameDesc').textContent = `Enter security PIN to delete "${filename}":`;
-            deleteModal.style.display = 'flex';
-            setTimeout(() => pinInput.focus(), 50);
-        }
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progressBar"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="uploadStatus">Uploading...</span>
+                        <span id="percentText">0%</span>
+                    </div>
+                </div>
 
-        function closeDeleteModal() {
-            deleteModal.style.display = 'none';
-            fileToDelete = null;
-        }
+                <button type="button" class="btn-upload" id="uploadBtn" disabled>
+                    Upload File
+                </button>
+            </section>
 
-        confirmDeleteBtn.addEventListener('click', async () => {
-            if (!fileToDelete) return;
-            const pin = pinInput.value.trim();
+            <section class="card">
+                <div class="card-header">
+                    <h2>Available Files</h2>
+                    <span class="file-count">{{ files|length }} files</span>
+                </div>
+                
+                {% if files %}
+                    <ul class="file-list">
+                        {% for file in files %}
+                            <li class="file-item" id="file-row-{{ loop.index }}">
+                                <div class="file-details">
+                                    <div class="file-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div class="file-text">
+                                        <span class="file-name">{{ file.name }}</span>
+                                        <span class="file-size">{{ file.size }}</span>
+                                    </div>
+                                </div>
+                                <div class="actions">
+                                    <a href="{{ url_for('download_file', filename=file.name) }}" class="action-btn" title="Download">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                                        </svg>
+                                    </a>
+                                    <!-- 1-Click direct delete (no PIN required) -->
+                                    <button type="button" class="action-btn delete" onclick="deleteFile('{{ file.name }}')" title="Delete">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-state">
+                        <span>No files uploaded yet. Be the first to share!</span>
+                    </div>
+                {% endif %}
+            </section>
 
-            try {
-                const response = await fetch('/delete-file', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ filename: fileToDelete, pin: pin })
+            <script>
+                const fileInput = document.getElementById('fileInput');
+                const dropzone = document.getElementById('dropzone');
+                const filePill = document.getElementById('filePill');
+                const fileName = document.getElementById('fileName');
+                const clearBtn = document.getElementById('clearBtn');
+                const uploadBtn = document.getElementById('uploadBtn');
+                const conflictWarning = document.getElementById('conflictWarning');
+                const progressContainer = document.getElementById('progressContainer');
+                const progressBar = document.getElementById('progressBar');
+                const percentText = document.getElementById('percentText');
+                const uploadStatus = document.getElementById('uploadStatus');
+
+                let selectedFile = null;
+
+                const CHUNK_SIZE = 50 * 1024 * 1024;
+                const CONCURRENCY = 2;
+
+                function formatBytes(bytes) {
+                    if (bytes === 0) return '0 B';
+                    const k = 1024;
+                    const sizes = ['B', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+                }
+
+                async function setFile(file) {
+                    if (!file) return;
+                    selectedFile = file;
+                    fileName.textContent = file.name;
+                    filePill.style.display = 'flex';
+                    conflictWarning.style.display = 'none';
+
+                    try {
+                        const res = await fetch('/check-file', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ filename: file.name })
+                        });
+                        const data = await res.json();
+
+                        if (data.exists) {
+                            conflictWarning.style.display = 'flex';
+                            uploadBtn.disabled = true;
+                            return;
+                        }
+                    } catch (err) {}
+
+                    uploadBtn.disabled = false;
+                }
+
+                function clearSelectedFile() {
+                    selectedFile = null;
+                    fileInput.value = '';
+                    filePill.style.display = 'none';
+                    conflictWarning.style.display = 'none';
+                    uploadBtn.disabled = true;
+                    progressContainer.style.display = 'none';
+                    progressBar.style.width = '0%';
+                }
+
+                dropzone.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+                clearBtn.addEventListener('click', clearSelectedFile);
+
+                ['dragenter', 'dragover'].forEach(name => {
+                    dropzone.addEventListener(name, (e) => {
+                        e.preventDefault();
+                        dropzone.classList.add('dragover');
+                    });
                 });
 
-                if (response.ok) {
-                    closeDeleteModal();
-                    window.location.reload();
-                } else {
-                    modalError.style.display = 'block';
-                    pinInput.value = '';
-                    pinInput.focus();
-                }
-            } catch (err) {
-                modalError.textContent = 'Server communication error';
-                modalError.style.display = 'block';
-            }
-        });
+                ['dragleave', 'drop'].forEach(name => {
+                    dropzone.addEventListener(name, (e) => {
+                        e.preventDefault();
+                        dropzone.classList.remove('dragover');
+                    });
+                });
 
-        pinInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') confirmDeleteBtn.click();
-        });
-    </script>
+                dropzone.addEventListener('drop', (e) => {
+                    if (e.dataTransfer.files.length > 0) {
+                        setFile(e.dataTransfer.files[0]);
+                    }
+                });
+
+                function uploadChunkPromise(chunk, index, totalChunks, filename, onProgress) {
+                    return new Promise((resolve, reject) => {
+                        const formData = new FormData();
+                        formData.append('file', chunk);
+                        formData.append('chunkIndex', index);
+                        formData.append('totalChunks', totalChunks);
+                        formData.append('filename', filename);
+
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('POST', '/upload-chunk', true);
+
+                        xhr.upload.onprogress = (e) => {
+                            if (e.lengthComputable && onProgress) {
+                                onProgress(e.loaded);
+                            }
+                        };
+
+                        xhr.onload = () => {
+                            if (xhr.status === 200) {
+                                if (onProgress) onProgress(chunk.size);
+                                resolve();
+                            } else if (xhr.status === 409) {
+                                reject(new Error('A file with this name already exists.'));
+                            } else {
+                                reject(new Error(`Chunk error: ${xhr.status}`));
+                            }
+                        };
+
+                        xhr.onerror = () => reject(new Error('Network error'));
+                        xhr.send(formData);
+                    });
+                }
+
+                uploadBtn.addEventListener('click', async () => {
+                    if (!selectedFile) return;
+
+                    const totalSize = selectedFile.size;
+                    const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
+                    uploadBtn.disabled = true;
+                    progressContainer.style.display = 'flex';
+                    uploadStatus.textContent = 'Uploading...';
+
+                    const chunkLoaded = new Array(totalChunks).fill(0);
+
+                    function updateProgressDisplay() {
+                        const currentTotal = chunkLoaded.reduce((a, b) => a + b, 0);
+                        const percent = Math.min(100, Math.round((currentTotal / totalSize) * 100));
+                        progressBar.style.width = percent + '%';
+                        percentText.textContent = `${formatBytes(currentTotal)} / ${formatBytes(totalSize)} (${percent}%)`;
+                    }
+
+                    const queue = [];
+                    for (let i = 0; i < totalChunks; i++) {
+                        const start = i * CHUNK_SIZE;
+                        const end = Math.min(start + CHUNK_SIZE, totalSize);
+                        queue.push({
+                            index: i,
+                            chunk: selectedFile.slice(start, end)
+                        });
+                    }
+
+                    async function worker() {
+                        while (queue.length > 0) {
+                            const task = queue.shift();
+                            await uploadChunkPromise(
+                                task.chunk,
+                                task.index,
+                                totalChunks,
+                                selectedFile.name,
+                                (loaded) => {
+                                    chunkLoaded[task.index] = loaded;
+                                    updateProgressDisplay();
+                                }
+                            );
+                        }
+                    }
+
+                    try {
+                        const workers = [];
+                        const activeThreads = Math.min(CONCURRENCY, queue.length);
+                        for (let i = 0; i < activeThreads; i++) {
+                            workers.push(worker());
+                        }
+
+                        await Promise.all(workers);
+
+                        uploadStatus.textContent = 'Assembling file...';
+                        progressBar.style.width = '100%';
+                        percentText.textContent = `${formatBytes(totalSize)} / ${formatBytes(totalSize)} (100%)`;
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 800);
+
+                    } catch (err) {
+                        console.error(err);
+                        uploadStatus.textContent = err.message || 'Upload failed. Try again.';
+                        uploadBtn.disabled = false;
+                    }
+                });
+
+                // 1-Click direct delete (no PIN required)
+                async function deleteFile(filename) {
+                    try {
+                        const response = await fetch('/delete-file', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ filename: filename })
+                        });
+
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            alert('Failed to delete file.');
+                        }
+                    } catch (err) {
+                        alert('Network error during deletion.');
+                    }
+                }
+            </script>
+        {% endif %}
+    </div>
 </body>
 </html>

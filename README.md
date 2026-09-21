@@ -3,12 +3,12 @@
 <h1 align="center">Perdanga AllShare</h1>
 
 <p align="center">
-  <b>Fast, encrypted peer-to-peer file distribution platform with multi-threaded chunking and zero-configuration Cloudflare Tunnel orchestration.</b>
+  <b>P2P file sharing platform powered by Flask and Cloudflare Tunnel.</b>
 </p>
 
 <br/>
 
-<img src="https://via.placeholder.com/640x380/090a0f/ffffff?text=Perdanga+AllShare+Interface+Preview" width="540" alt="Perdanga AllShare Interface Preview"/>
+<img src="https://github.com/PerdangaSoftware/Perdanga-AllShare/blob/main/screenshots/Perdanga%20AllShare.png?raw=true" width="540" alt="Perdanga AllShare Interface Preview"/>
 
 </div>
 
@@ -16,7 +16,6 @@
 ## Highlights & Features
 
 - **Cloud Tunneling:** Instant public encrypted access via Cloudflare without port forwarding, dynamic DNS, or static IPs.
-- **Unlimited File Sizes:** Real-time 50 MB chunking bypasses Cloudflare's 100 MB ceiling, enabling multi-gigabyte transfers.
 - **Multi-Stream Uploads:** Parallel HTTP/2 worker pool saturates available upstream bandwidth.
 - **PIN-Protected Deletion:** Server-enforced PIN verification (`8159`) prevents unauthorized file removal.
 - **Path Traversal Hardening:** Strict canonical path validation restricts operations exclusively to safe directories.
@@ -40,16 +39,13 @@ PerdangaAllShare/
 │   └── index.html           # Minimalist frontend template with drag-and-drop UI
 │
 ├── uploads/                 # Local directory for stored public files
-│   └── .gitkeep             # Repository placeholder
 │
 ├── temp/                    # Staging buffer for in-flight chunk assemblies
-│   └── .gitkeep             # Repository placeholder
 │
 ├── app.py                   # Core Flask server, multi-thread assembler & security routes
 ├── run.py                   # Process controller, DNS readiness checker & clipboard handler
 ├── start_allshare.bat       # Master one-click startup launcher for Windows
 ├── requirements.txt         # Python package dependencies
-├── .gitignore               # Version control exclusion rules
 └── README.md                # Project documentation
 ```
 
